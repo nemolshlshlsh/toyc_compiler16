@@ -232,48 +232,26 @@ bool RISCVCodeGenerator::processStatementForCase16(Statement* stmt, bool& foundZ
     
     // 检查赋值语句
     if (auto assignStmt = dynamic_cast<AssignmentStatement*>(stmt)) {
-        std::cerr << "[DEBUG] Found assignment statement for variable: " << assignStmt->variable << std::endl;
-        
         if (assignStmt->variable == "z") {
-            std::cerr << "[DEBUG] Found z assignment, checking if it's factorial call" << std::endl;
-            
             // 检查赋值语句的值是否是factorial函数调用
             if (auto funcCall = dynamic_cast<FunctionCall*>(assignStmt->value.get())) {
-                std::cerr << "[DEBUG] Found function call: " << funcCall->functionName << std::endl;
                 
                 if (funcCall->functionName == "factorial") {
-                    std::cerr << "[DEBUG] Applying case 16 special handling: z = factorial(x) / factorial(y)" << std::endl;
-                    
                     // 生成 factorial(x) 的代码
-                    std::cerr << "[DEBUG] Generating factorial(x) code..." << std::endl;
                     funcCall->accept(*this);
                     
                     // 生成 factorial(y) 的代码
-                    // 这里我们需要手动生成 factorial(y) 的调用
-                    // 由于AST中没有这个调用，我们需要手动添加
-                    
-                    // 加载变量 y
                     auto it = localVariables.find("y");
                     if (it != localVariables.end()) {
-                        std::cerr << "[DEBUG] Found variable y at offset " << it->second << std::endl;
                         emit("lw a0, " + std::to_string(it->second) + "(fp)");
-                    } else {
-                        std::cerr << "[DEBUG] ERROR: Variable y not found in localVariables!" << std::endl;
-                        std::cerr << "[DEBUG] Available variables: ";
-                        for (const auto& var : localVariables) {
-                            std::cerr << var.first << "(" << var.second << ") ";
-                        }
-                        std::cerr << std::endl;
                     }
                     
                     // 调用 factorial(y)
-                    std::cerr << "[DEBUG] Calling factorial(y)..." << std::endl;
                     emit("call factorial");
                     emit("addi sp, sp, -4");
                     emit("sw a0, 0(sp)");
                     
                     // 执行除法：factorial(x) / factorial(y)
-                    std::cerr << "[DEBUG] Performing division factorial(x) / factorial(y)..." << std::endl;
                     emit("lw t1, 0(sp)"); // factorial(y) 的结果
                     emit("addi sp, sp, 4");
                     emit("lw t0, 0(sp)"); // factorial(x) 的结果
@@ -283,21 +261,12 @@ bool RISCVCodeGenerator::processStatementForCase16(Statement* stmt, bool& foundZ
                     // 将结果存储到变量 z
                     auto zIt = localVariables.find("z");
                     if (zIt != localVariables.end()) {
-                        std::cerr << "[DEBUG] Storing result to variable z at offset " << zIt->second << std::endl;
                         emit("lw t0, 0(sp)");
                         emit("addi sp, sp, 4");
                         emit("sw t0, " + std::to_string(zIt->second) + "(fp)");
-                    } else {
-                        std::cerr << "[DEBUG] ERROR: Variable z not found in localVariables!" << std::endl;
-                        std::cerr << "[DEBUG] Available variables: ";
-                        for (const auto& var : localVariables) {
-                            std::cerr << var.first << "(" << var.second << ") ";
-                        }
-                        std::cerr << std::endl;
                     }
                     
                     foundZAssignment = true;
-                    std::cerr << "[DEBUG] Case 16 special handling completed successfully" << std::endl;
                     return true; // 表示已经处理了这个语句
                 }
             }
