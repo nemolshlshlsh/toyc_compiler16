@@ -569,9 +569,10 @@ void RISCVCodeGenerator::visit(FunctionDefinition& node) {
         }
     }
     
-    // 计算总栈空间：基础帧(16) + 参数空间 + 局部变量(4*count)
-    int paramSize = node.parameters.size() * 4;
-    int localSize = 16 + paramSize + localVarCount * 4;
+    // 计算总栈空间：基础帧(16) + 寄存器参数存储 + 栈参数存储 + 局部变量(4*count)
+    int regParamSize = std::min((int)node.parameters.size(), 8) * 4;  // 前8个参数存储空间
+    int stackParamSize = std::max(0, (int)node.parameters.size() - 8) * 4;  // 栈参数存储空间
+    int localSize = 16 + regParamSize + stackParamSize + localVarCount * 4;
     // 确保 16 字节对齐
     localSize = (localSize + 15) & ~15;
     
@@ -588,10 +589,10 @@ void RISCVCodeGenerator::visit(FunctionDefinition& node) {
             emit("sw a" + std::to_string(i) + ", " + std::to_string(stackOffset) + "(fp)");
         } else {
             // 额外的参数通过栈传递
-            // 栈参数在调用者的栈帧中，相对于当前fp的位置
-            // 当前fp指向基础栈帧的顶部，栈参数在fp+16, fp+20, fp+24, ...
-            int stackParamOffset = 16 + (i - 8) * 4;
-            emit("lw t0, " + std::to_string(stackParamOffset) + "(fp)");
+            // 栈参数在调用者的栈帧中，相对于当前sp的位置
+            // 栈参数在sp+0, sp+4, sp+8, ... (相对于调用时的sp)
+            int stackParamOffset = (i - 8) * 4;
+            emit("lw t0, " + std::to_string(stackParamOffset) + "(sp)");
             emit("sw t0, " + std::to_string(stackOffset) + "(fp)");
         }
     }
