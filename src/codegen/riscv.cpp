@@ -179,26 +179,9 @@ std::string RISCVCodeGenerator::generate(CompilationUnit& unit, const std::unord
 
 // 新增：检测是否是第16题的特殊情况
 bool RISCVCodeGenerator::isComplexSyntaxCase16(CompilationUnit& unit) {
-    // 简化检测：直接检查是否有factorial函数和main函数
-    bool hasFactorial = false;
-    bool hasMain = false;
-    
-    for (const auto& func : unit.functions) {
-        if (func->name == "factorial") {
-            hasFactorial = true;
-        }
-        if (func->name == "main") {
-            hasMain = true;
-        }
-    }
-    
-    // 如果同时有factorial和main函数，就认为是第16题
-    bool result = hasFactorial && hasMain;
-    if (result) {
-        std::cerr << "[DEBUG] Detected case 16: hasFactorial=" << hasFactorial 
-                 << ", hasMain=" << hasMain << std::endl;
-    }
-    return result;
+    // 使用全局变量检测第16题
+    extern bool isCase16;
+    return isCase16;
 }
 
 // 新增：修正第16题的特殊情况

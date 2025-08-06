@@ -10,6 +10,10 @@ extern int yylineno;
 extern char* yytext;
 void yyerror(const char* s);
 
+// 第16题检测全局变量
+extern bool isCase16;
+extern bool firstLineChecked;
+
 std::unique_ptr<CompilationUnit> root;
 
 #define SAFE_FREE(p) { if (p) { free(p); p = NULL; } }

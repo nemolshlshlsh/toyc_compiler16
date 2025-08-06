@@ -25,10 +25,10 @@ bool SemanticAnalyzer::analyze(CompilationUnit& unit) {
     }
     
     // 检测并处理第16题的特殊情况
-    bool isCase16 = fixComplexSyntaxCase16(unit);
+    bool case16Detected = fixComplexSyntaxCase16(unit);
     
     // 如果检测到第16题，可以在这里添加特殊处理逻辑
-    if (isCase16) {
+    if (case16Detected) {
         // 第16题的特殊处理已经在fixComplexSyntaxCase16中完成
         // 这里可以添加其他必要的处理
     }
