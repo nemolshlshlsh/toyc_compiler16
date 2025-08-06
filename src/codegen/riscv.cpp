@@ -315,8 +315,8 @@ void RISCVCodeGenerator::generatePrologue(const std::string& funcName, int local
 
 void RISCVCodeGenerator::generateEpilogue() {
     // 恢复帧指针和返回地址
-    emit("lw ra, -4(fp)");
-    emit("lw fp, -8(fp)");
+    emit("lw ra, 12(sp)");
+    emit("lw fp, 8(sp)");
     emit("addi sp, sp, 16");  // 恢复栈指针
     emit("ret");
 }
