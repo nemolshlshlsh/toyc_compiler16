@@ -569,10 +569,10 @@ void RISCVCodeGenerator::visit(FunctionDefinition& node) {
         }
     }
     
-    // 计算总栈空间：基础帧(16) + 寄存器参数存储 + 栈参数存储 + 局部变量(4*count)
+    // 计算总栈空间：基础帧(16) + 寄存器参数存储 + 栈参数存储 + 局部变量(4*count) + 额外安全空间
     int regParamSize = std::min((int)node.parameters.size(), 8) * 4;  // 前8个参数存储空间
     int stackParamSize = std::max(0, (int)node.parameters.size() - 8) * 4;  // 栈参数存储空间
-    int localSize = 16 + regParamSize + stackParamSize + localVarCount * 4;
+    int localSize = 16 + regParamSize + stackParamSize + localVarCount * 4 + 64;  // 增加64字节安全空间
     // 确保 16 字节对齐
     localSize = (localSize + 15) & ~15;
     
